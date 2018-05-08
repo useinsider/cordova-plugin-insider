@@ -11,7 +11,6 @@
     
     <platform name="android">
     <framework src="src/android/insider-internal-build.gradle" custom="true" type="gradleReference"/>
-    <resource-file src="insider-aar/insider-7.1.4-C.aar" target="libs/insider-7.1.4-C.aar"/>
     <config-file target="AndroidManifest.xml" parent="/manifest">
       <uses-permission android:name="android.permission.INTERNET"/>
       <uses-permission android:name="android.permission.WAKE_LOCK"/>
