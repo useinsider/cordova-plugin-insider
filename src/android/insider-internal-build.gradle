@@ -5,13 +5,15 @@ repositories {
     }
     maven { url 'https://maven.google.com' }
 }
-configurations {
-    all*.exclude group: 'com.android.support', module: 'support-v4'
-}
+// configurations {
+//     all*.exclude group: 'com.android.support', module: 'support-v4'
+// }
 
 dependencies {
     compile (name: 'insider-7.1.4-C', ext: 'aar')
-    compile 'com.android.support:appcompat-v7:25.+'
+    compile 'com.android.support:appcompat-v7:25.+'{
+        exclude group: 'com.android.support', module: 'support-v4'
+    }
     compile 'com.google.android.gms:play-services-gcm:11.8.0'
     compile 'com.google.android.gms:play-services-location:11.8.0'
     compile 'com.google.firebase:firebase-messaging:11.8.0'
