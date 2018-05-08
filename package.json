@@ -1,0 +1,22 @@
+{
+  "name": "cordova-plugin-insider",
+  "version": "1.0.0",
+  "description": "Insider Cordova Plugin",
+  "cordova": {
+    "id": "cordova-plugin-insider",
+    "platforms": []
+  },
+  "keywords": [
+    "ecosystem:cordova"
+  ],
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/useinsider/mobile-cordova-plugin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/useinsider/mobile-cordova-plugin/issues"
+  },
+  "homepage": "https://github.com/useinsider/mobile-cordova-plugin#readme"
+}
