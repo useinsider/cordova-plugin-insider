@@ -24,6 +24,6 @@ android {
     exclude 'META-INF/LICENSE'
   }
   defaultConfig {
-       multiDexEnabled true
+       multiDexEnabled false
     }
 }
