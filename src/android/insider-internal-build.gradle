@@ -6,16 +6,9 @@ repositories {
     maven { url 'https://maven.google.com' }
     maven { url "http://mobile.useinsider.com" }
 }
-// configurations {
-//     all*.exclude group: 'com.android.support', module: 'support-v4'
-// }
 
 dependencies {
     compile 'com.useinsider:insider:7.1.4-C'
-    compile 'com.android.support:appcompat-v7:25.+'
-    compile 'com.google.android.gms:play-services-gcm:11.8.0'
-    compile 'com.google.android.gms:play-services-location:11.8.0'
-    compile 'com.google.firebase:firebase-messaging:11.8.0'
 }
 
 android {
@@ -24,6 +17,6 @@ android {
     exclude 'META-INF/LICENSE'
   }
   defaultConfig {
-       multiDexEnabled false
+       multiDexEnabled true
     }
 }
