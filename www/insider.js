@@ -55,3 +55,4 @@ insider.setCustomEndpoint = function () {
 };
 
 module.exports = insider
+window.Insider = insider
