@@ -9,7 +9,7 @@ repositories {
 
 dependencies {
     compile 'com.useinsider:insider:7.1.4-C'
-    compile 'com.android.support:appcompat-v7:23.1.0'
+    compile 'com.android.support:appcompat-v7:25.4.0'
     compile 'com.google.android.gms:play-services-gcm:+'
     compile 'com.google.android.gms:play-services-location:+'
     compile 'com.google.firebase:firebase-messaging:+'
@@ -22,5 +22,16 @@ android {
   }
   defaultConfig {
        multiDexEnabled true
+    }
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        def requested = details.requested
+        if (requested.group == 'com.android.support') {
+            if (!requested.name.startsWith("multidex")) {
+                details.useVersion '25.4.0'
+            }
+        }
     }
 }
