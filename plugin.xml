@@ -16,19 +16,6 @@
       <uses-permission android:name="android.permission.WAKE_LOCK"/>
       <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/> 
     </config-file>
-    <config-file target="AndroidManifest.xml" parent="/manifest/application">
-      <activity
-            android:name="com.useinsider.insider.InsiderLoginActivity"
-            android:noHistory="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="$PARTNER_NAME" />
-            </intent-filter>
-        </activity>
-    </config-file>
 
     <config-file parent="/*" target="res/xml/config.xml">
       <feature name="insider">

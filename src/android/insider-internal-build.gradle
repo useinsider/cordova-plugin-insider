@@ -1,18 +1,29 @@
 repositories {
     jcenter()
-    flatDir{
-        dirs 'libs'
-    }
     maven { url 'https://maven.google.com' }
     maven { url "http://mobile.useinsider.com" }
+    flatDir {
+      dirs 'libs'
+   }
+}
+buildscript {
+	repositories {
+            jcenter()
+			mavenLocal()
+        }
+    dependencies {
+        classpath 'com.google.gms:google-services:3.2.1'
+    }
 }
 
+ext.postBuildExtras = {apply plugin: 'com.google.gms.google-services'}
+
 dependencies {
-    compile 'com.useinsider:insider:7.1.4-C'
-    compile 'com.android.support:appcompat-v7:25.4.0'
-    compile 'com.google.android.gms:play-services-gcm:+'
-    compile 'com.google.android.gms:play-services-location:+'
-    compile 'com.google.firebase:firebase-messaging:+'
+    compile 'com.useinsider:insider:7.3.2'
+    compile 'com.android.support:appcompat-v7:27.1.1'
+    compile 'com.google.android.gms:play-services-gcm:15.0.0'
+    compile 'com.google.android.gms:play-services-location:15.0.0'
+    compile 'com.google.firebase:firebase-messaging:15.0.0'
 }
 
 android {
@@ -30,7 +41,7 @@ configurations.all {
         def requested = details.requested
         if (requested.group == 'com.android.support') {
             if (!requested.name.startsWith("multidex")) {
-                details.useVersion '25.4.0'
+                details.useVersion '27.1.1'
             }
         }
     }

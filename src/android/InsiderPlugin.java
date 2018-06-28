@@ -4,6 +4,7 @@ import com.useinsider.insider.Insider;
 import com.useinsider.insider.RequestUtils;
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import android.content.Context;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
@@ -17,6 +18,7 @@ import android.util.Log;
 import android.app.Activity;
 import org.apache.cordova.CordovaPreferences;
 import android.os.Handler;
+import android.util.Log;
 
 public class InsiderPlugin extends CordovaPlugin {
     private Activity activity;
@@ -30,7 +32,8 @@ public class InsiderPlugin extends CordovaPlugin {
                     this.preferences.getString("insider.android_google_app_id",""),
                     activity.getClass(),
                     Boolean.valueOf(this.preferences.getString("insider.android_push_will_collapse","false")),
-                    Integer.parseInt(this.preferences.getString("insider.android_geofence","60"))); 
+                    Integer.parseInt(this.preferences.getString("insider.android_geofence","60")));
+        Insider.Instance.refreshDeviceToken();
     }
 
     @Override
@@ -39,10 +42,9 @@ public class InsiderPlugin extends CordovaPlugin {
             if (args == null || args.length() == 0) {
                 return false;
             }
-            if(action.equals("init")){
-                //Insider.Instance.setDeviceToken(FirebaseInstanceId.getInstance().getToken());
+            if(action.equals("init")){                
                 return true;
-            }
+            } 
             else if (action.equals("tagEvent")) {
                 Insider.Instance.tagEvent(activity, args.getString(0));
                 return true;
