@@ -26,16 +26,17 @@ public class InsiderPlugin extends CordovaPlugin {
     @Override
     protected void pluginInitialize() {
         activity = this.cordova.getActivity();
+        String s = this.preferences.getString("insider.android_google_app_id","");
         Insider.Instance.setSDKType("cordova");
         Insider.Instance.init(activity.getApplication(),
                     this.preferences.getString("insider.android_partner_name",""),
-                    this.preferences.getString("insider.android_google_app_id",""),
+                    s.substring(7),
                     activity.getClass(),
                     Boolean.valueOf(this.preferences.getString("insider.android_push_will_collapse","false")),
                     Integer.parseInt(this.preferences.getString("insider.android_geofence","60")));
         Insider.Instance.refreshDeviceToken();
     }
-
+    
     @Override
     public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) {
         try {
