@@ -26,13 +26,6 @@
 
     <source-file src="src/android/InsiderPlugin.java" target-dir="src/insider/cordova/insider" />
 
-    <framework src="com.useinsider:insider:7.5-C"/>
-    <framework src="com.android.support:appcompat-v7:27.1.1"/>
-    <!-- <framework src="com.google.android.gms:play-services-gcm:15.0.0"/>
-    <framework src="com.google.android.gms:play-services-location:15.0.0"/> -->
-    <framework src="com.google.firebase:firebase-messaging:15.0.0"/>
-    <framework src="android.arch.lifecycle:extensions:1.1.0"/>
-
   </platform>
     <platform name="ios">
         <framework src="libsqlite3.tbd" />
