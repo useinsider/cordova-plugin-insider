@@ -36,8 +36,8 @@ configurations.all {
                 details.useVersion '27.1.1'
             }
         }
+        if (requested.group == 'com.google.android.gms' || requested.group == 'com.google.firebase') {
+            details.useVersion '15.0.0'
+        }
     }
-    resolutionStrategy.force('com.google.android.gms:play-services-gcm:15.0.0')
-    resolutionStrategy.force('com.google.android.gms:play-services-location:15.0.0')
-    resolutionStrategy.force('com.google.firebase:firebase-messaging:15.0.0')
 }
