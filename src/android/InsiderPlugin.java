@@ -13,6 +13,8 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+
 import android.util.Log;
 
 import android.app.Activity;
@@ -35,6 +37,7 @@ public class InsiderPlugin extends CordovaPlugin {
                     Boolean.valueOf(this.preferences.getString("insider.android_push_will_collapse","false")),
                     Integer.parseInt(this.preferences.getString("insider.android_geofence","60")));
         Insider.Instance.refreshDeviceToken();
+        Insider.Instance.setDeepLinks();
     }
     
     @Override
@@ -129,7 +132,7 @@ public class InsiderPlugin extends CordovaPlugin {
                 return true;
             }
         } catch (Exception e) {
-            Insider.Instance.putErrorLog(e);
+            Insider.Instance.putLog(e);
         }
         return false;
     }

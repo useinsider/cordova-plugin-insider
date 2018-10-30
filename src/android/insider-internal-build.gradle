@@ -1,7 +1,8 @@
 repositories {
     jcenter()
     maven { url 'https://maven.google.com' }
-    maven { url "http://mobile.useinsider.com" }
+    //maven { url "http://mobile.useinsider.com" }
+    maven { url "http://localhost:3000" }
     // flatDir {
     //     dirs 'libs'
     // }
@@ -10,7 +11,7 @@ repositories {
 //ext.postBuildExtras = {apply plugin: 'com.google.gms.google-services'}
 
 dependencies {
-    compile 'com.useinsider:insider:7.5-C'
+    compile 'com.useinsider:insider:7.6.1-C'
     compile 'com.android.support:appcompat-v7:27.1.1'
     compile 'com.google.android.gms:play-services-gcm:15.0.0'
     compile 'com.google.android.gms:play-services-location:15.0.0'
