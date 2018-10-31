@@ -29,7 +29,6 @@ public class InsiderPlugin extends CordovaPlugin {
     protected void pluginInitialize() {
         activity = this.cordova.getActivity();
         String s = this.preferences.getString("insider.android_google_app_id","");
-        Insider.Instance.setSDKType("cordova");
         Insider.Instance.init(activity.getApplication(),
                     this.preferences.getString("insider.android_partner_name",""),
                     s.substring(7),
@@ -149,15 +148,4 @@ public class InsiderPlugin extends CordovaPlugin {
         pluginResult.setKeepCallback(true);
         callbackContext.sendPluginResult(pluginResult);
     }
-
-    @Override
-    public void onStart(){
-        Insider.Instance.start(activity);
-    }
-
-    @Override
-    public void onStop(){
-        Insider.Instance.stop(activity);
-    }
-
 }
