@@ -38,10 +38,19 @@
 +(void)handlePushLog:(NSDictionary *)launchOptions;
 +(NSDictionary *)getAdvancedPushDeepLink:(NSDictionary *)launchOptions appGroup:(NSString *)appGroup;
 
-+(void)getRecommendedData:(NSString *)productID success:(void (^)(NSDictionary *jsonObject))completionBlock;
-
++(void)getRecommendedData:(NSString *)productID success:(void (^)(NSArray *jsonObject))completionBlock;
++(void)setGDPRConsent:(BOOL)gdprConsent;
 //On Premise functions
 +(void)initSDK:(NSString*)partnerName launchOptions:(NSDictionary*)launchOptions customEndpoint:(NSString *)link;
 +(void)initSDK:(NSString*)partnerName launchOptions:(NSDictionary*)launchOptions withAppGroup:(NSString *)appGroup customEndpoint:(NSString *)link;
 
+typedef NS_ENUM(NSInteger, InsiderVariableDataType) {
+    InsiderVariableDataTypeContent = 0,
+    InsiderVariableDataTypeElement,
+};
+
++(NSString *)getStringWithName:(NSString *)name defaultString:(NSString *)defaultString dataType:(InsiderVariableDataType)dataType;
++(BOOL)getBoolWithName:(NSString *)name defaultBool:(BOOL)defaultBool dataType:(InsiderVariableDataType)dataType;
++(int)getIntWithName:(NSString *)name defaultInt:(int)defaultInt dataType:(InsiderVariableDataType)dataType;
++(void)sendError:(NSException *)crashError desc:(NSString *)desc;
 @end

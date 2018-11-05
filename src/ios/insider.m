@@ -22,24 +22,34 @@
 
 - (void)pluginInitialize {}
 
+-(NSDictionary *)getPushInfo{
+  NSUserDefaults *pref = [[NSUserDefaults alloc] init];
+  NSDictionary *mainDict = [pref objectForKey:@"InsiderDeepLinks"];
+  NSDictionary *deepLinks = [mainDict objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+  if (deepLinks){
+    return deepLinks;
+  }
+
+  return mainDict;
+}
+
 - (void)getDeepLinkData:(CDVInvokedUrlCommand*)command{
-    NSUserDefaults *pref = [[NSUserDefaults alloc] init];
-    NSDictionary *deepLinks = [pref objectForKey:@"InsiderCordovaDeepLinks"];
-    [pref removeObjectForKey:@"InsiderCordovaDeepLinks"];
-    [pref synchronize];
+    NSDictionary *deepLinks = [self getPushInfo];
     if (deepLinks){
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:deepLinks];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        NSString *deepLink = [deepLinks objectForKey: [[command arguments] objectAtIndex:0]];
+        if (deepLink){
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:deepLink];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        }
     }
 }
 
-
 - (void)init:(CDVInvokedUrlCommand*)command{
     NSString* partnerName = [[command arguments] objectAtIndex:0];
+    [Insider startAutoIntegration:true];
     [Insider initSDK:partnerName launchOptions:nil];
     [Insider resumeSession];
     [Insider registerPush];
-    [Insider startAutoIntegration:true];
 }
 
 - (void)tagEvent:(CDVInvokedUrlCommand*)command{

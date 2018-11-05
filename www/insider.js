@@ -35,7 +35,7 @@ insider.itemAddedToCart = function (productName, productPrice, productCurrency, 
 };
 
 insider.itemRemovedFromCart = function (productName) {
-    exec(function(){}, function(){}, '  insider', 'itemRemovedFromCart', [productName]);
+    exec(function(){}, function(){}, 'insider', 'itemRemovedFromCart', [productName]);
 };
 
 insider.cartCleared = function () {

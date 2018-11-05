@@ -13,6 +13,8 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+
 import android.util.Log;
 
 import android.app.Activity;
@@ -27,7 +29,6 @@ public class InsiderPlugin extends CordovaPlugin {
     protected void pluginInitialize() {
         activity = this.cordova.getActivity();
         String s = this.preferences.getString("insider.android_google_app_id","");
-        Insider.Instance.setSDKType("cordova");
         Insider.Instance.init(activity.getApplication(),
                     this.preferences.getString("insider.android_partner_name",""),
                     s.substring(7),
@@ -35,6 +36,7 @@ public class InsiderPlugin extends CordovaPlugin {
                     Boolean.valueOf(this.preferences.getString("insider.android_push_will_collapse","false")),
                     Integer.parseInt(this.preferences.getString("insider.android_geofence","60")));
         Insider.Instance.refreshDeviceToken();
+        Insider.Instance.setDeepLinks();
     }
     
     @Override
@@ -129,7 +131,7 @@ public class InsiderPlugin extends CordovaPlugin {
                 return true;
             }
         } catch (Exception e) {
-            Insider.Instance.putErrorLog(e);
+            Insider.Instance.putLog(e);
         }
         return false;
     }
@@ -146,15 +148,4 @@ public class InsiderPlugin extends CordovaPlugin {
         pluginResult.setKeepCallback(true);
         callbackContext.sendPluginResult(pluginResult);
     }
-
-    @Override
-    public void onStart(){
-        Insider.Instance.start(activity);
-    }
-
-    @Override
-    public void onStop(){
-        Insider.Instance.stop(activity);
-    }
-
 }
