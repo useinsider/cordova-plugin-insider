@@ -1,8 +1,7 @@
 repositories {
     jcenter()
     maven { url 'https://maven.google.com' }
-    //maven { url "http://mobile.useinsider.com" }
-    maven { url "http://localhost:3000" }
+    maven { url "http://mobile.useinsider.com" }
 }
 
 ext.postBuildExtras = {apply plugin: 'com.google.gms.google-services'}
