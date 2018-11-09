@@ -4,7 +4,7 @@ repositories {
     maven { url "http://mobile.useinsider.com" }
 }
 
-ext.postBuildExtras = {apply plugin: 'com.google.gms.google-services'}
+//ext.postBuildExtras = {apply plugin: 'com.google.gms.google-services'}
 
 dependencies {
     compile 'com.useinsider:insider:7.6.2'
