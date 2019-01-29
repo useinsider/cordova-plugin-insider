@@ -6,6 +6,10 @@ insider.init = function (partnerName) {
     exec(function(){}, function(){}, 'insider', 'init', [partnerName]);
 };
 
+insider.refreshDeviceToken = function () {
+    exec(function(){}, function(){}, 'insider', 'refreshDeviceToken', []);
+};
+
 insider.tagEvent = function (event) {
     exec(function(){}, function(){}, 'insider', 'tagEvent', [event]);
 };

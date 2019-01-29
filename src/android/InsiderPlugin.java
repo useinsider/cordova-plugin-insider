@@ -51,6 +51,9 @@ public class InsiderPlugin extends CordovaPlugin {
             else if (action.equals("tagEvent")) {
                 Insider.Instance.tagEvent(activity, args.getString(0));
                 return true;
+            } else if (action.equals("refreshDeviceToken")) {
+                Insider.Instance.refreshDeviceToken();
+                return true;
             } else if(action.equals("setUserAttributes")) {
                 JSONObject attrJson = new JSONObject(args.getString(0));
                 HashMap<String, Object> attrMap = new HashMap<String,Object>();
