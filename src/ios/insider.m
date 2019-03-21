@@ -33,6 +33,7 @@
 - (void)getStringWithName:(CDVInvokedUrlCommand*)command;
 - (void)getIntWithName:(CDVInvokedUrlCommand*)command;
 - (void)getBoolWithName:(CDVInvokedUrlCommand*)command;
+- (void)cleanView:(CDVInvokedUrlCommand*)command;
 @end
 
 @implementation insider
@@ -350,6 +351,14 @@ int INVALID_DATA_TYPE = -1;
         [Insider cartCleared];
     } @catch (NSException *exception) {
         [Insider sendError:exception desc:@"insider.m - cartCleared"];
+    }
+}
+
+- (void)cleanView:(CDVInvokedUrlCommand*)command{
+    @try {
+        [Insider removeInapp];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - cleanView"];
     }
 }
 

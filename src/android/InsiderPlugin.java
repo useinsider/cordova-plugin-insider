@@ -198,8 +198,12 @@ public class InsiderPlugin extends CordovaPlugin {
     }
 
     private static void callbackSuccess(CallbackContext callbackContext, Object callbackValue) {
-        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, callbackValue);
-        pluginResult.setKeepCallback(true);
-        callbackContext.sendPluginResult(pluginResult);
+        try {
+            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, callbackValue);
+            pluginResult.setKeepCallback(true);
+            callbackContext.sendPluginResult(pluginResult);
+        } catch (Exception e) {
+            Insider.Instance.putException(e);
+        }
     }
 }

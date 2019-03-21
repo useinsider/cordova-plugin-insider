@@ -110,5 +110,9 @@ insider.getBoolWithName = function (variableName, defaultValue, dataType, getBoo
     exec(getBoolWithNameCallback, function(){}, 'insider', 'getBoolWithName', [variableName, defaultValue, dataType]);
 };
 
+insider.cleanView = function () {
+    exec(function(){}, function(){}, 'insider', 'cleanView', []);
+};
+
 module.exports = insider
 window.Insider = insider
