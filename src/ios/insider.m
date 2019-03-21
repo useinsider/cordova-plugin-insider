@@ -73,10 +73,22 @@ int INVALID_DATA_TYPE = -1;
     }
 }
 
+- (void)initWithAppGroup:(CDVInvokedUrlCommand*)command{
+    @try {
+        NSString* partnerName = [[command arguments] objectAtIndex:0];
+        NSString* appGroup = [[command arguments] objectAtIndex:1];
+        [Insider startAutoIntegration:true];
+        [Insider initSDK:partnerName launchOptions:nil withAppGroup:appGroup];
+        [Insider resumeSession];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - init"];
+    }
+}
+
 - (void)refreshDeviceToken:(CDVInvokedUrlCommand*)command{
     @try {
         NSString* deviceToken = [[command arguments] objectAtIndex:0];
-        NSData* data=[deviceToken dataUsingEncoding:NSUTF8StringEncoding];
+        NSData* data = [deviceToken dataUsingEncoding:NSUTF8StringEncoding];
         [Insider registerPushNotification:nil deviceToken:data];
     } @catch (NSException *exception) {
         [Insider sendError:exception desc:@"insider.m - refreshDeviceToken"];
@@ -99,8 +111,8 @@ int INVALID_DATA_TYPE = -1;
         NSString* dataType = [[command arguments] objectAtIndex:2];
         InsiderVariableDataType insiderDataType = [self getDataType:dataType];
         if (insiderDataType == INVALID_DATA_TYPE) return;
-        NSString* optimisedString = [Insider getStringWithName:variableName defaultString:defaultString dataType:insiderDataType];
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:optimisedString];
+        NSString* optimizedString = [Insider getStringWithName:variableName defaultString:defaultString dataType:insiderDataType];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:optimizedString];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } @catch (NSException *exception) {
         [Insider sendError:exception desc:@"insider.m - getStringWithName"];
@@ -114,8 +126,8 @@ int INVALID_DATA_TYPE = -1;
         NSString* dataType = [[command arguments] objectAtIndex:2];
         InsiderVariableDataType insiderDataType = [self getDataType:dataType];
         if (insiderDataType == INVALID_DATA_TYPE) return;
-        int optimisedInt = [Insider getIntWithName:variableName defaultInt:defaultInt dataType:insiderDataType];
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:optimisedInt];
+        int optimizedInt = [Insider getIntWithName:variableName defaultInt:defaultInt dataType:insiderDataType];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:optimizedInt];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } @catch (NSException *exception) {
         [Insider sendError:exception desc:@"insider.m - getIntWithName"];
@@ -129,8 +141,8 @@ int INVALID_DATA_TYPE = -1;
         NSString* dataType = [[command arguments] objectAtIndex:2];
         InsiderVariableDataType insiderDataType = [self getDataType:dataType];
         if (insiderDataType == INVALID_DATA_TYPE) return;
-        BOOL optimisedBool = [Insider getBoolWithName:variableName defaultBool:defaultBool dataType:insiderDataType];
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:optimisedBool];
+        BOOL optimizedBool = [Insider getBoolWithName:variableName defaultBool:defaultBool dataType:insiderDataType];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:optimizedBool];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } @catch (NSException *exception) {
         [Insider sendError:exception desc:@"insider.m - getBoolWithName"];
@@ -140,13 +152,15 @@ int INVALID_DATA_TYPE = -1;
 - (void)getDeepLinkData:(CDVInvokedUrlCommand*)command{
     @try {
         NSDictionary *deepLinks = [self getPushInfo];
-        if (deepLinks){
-            NSString *deepLink = [deepLinks objectForKey: [[command arguments] objectAtIndex:0]];
-            if (deepLink){
-                CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:deepLink];
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-            }
+        if (!deepLinks){
+            return;
         }
+        NSString *deepLink = [deepLinks objectForKey: [[command arguments] objectAtIndex:0]];
+        if (!deepLink){
+            return;
+        }
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:deepLink];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } @catch (NSException *exception) {
         [Insider sendError:exception desc:@"insider.m - getDeepLinkData"];
     }
@@ -324,8 +338,8 @@ int INVALID_DATA_TYPE = -1;
 
 - (void)itemRemovedFromCart:(CDVInvokedUrlCommand*)command{
     @try {
-        NSString* productName = [[command arguments] objectAtIndex:0];
-        [Insider itemRemovedFromCart:productName];
+        NSString* productID = [[command arguments] objectAtIndex:0];
+        [Insider itemRemovedFromCart:productID];
     } @catch (NSException *exception) {
         [Insider sendError:exception desc:@"insider.m - itemRemovedFromCart"];
     }

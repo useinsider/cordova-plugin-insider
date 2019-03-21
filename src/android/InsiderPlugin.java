@@ -30,6 +30,8 @@ import android.util.Log;
 
 public class InsiderPlugin extends CordovaPlugin {
     private Activity activity;
+    //insider171682431132
+    private int GOOGLE_API_KEY_OFFSET = 7; 
 
     @Override
     protected void pluginInitialize() {
@@ -37,7 +39,7 @@ public class InsiderPlugin extends CordovaPlugin {
         String s = this.preferences.getString("insider.android_google_app_id", "");
         Insider.Instance.init(activity.getApplication(),
                 this.preferences.getString("insider.android_partner_name", ""),
-                s.substring(7),
+                s.substring(GOOGLE_API_KEY_OFFSET),
                 activity.getClass(),
                 Boolean.valueOf(this.preferences.getString("insider.android_push_will_collapse", "false")),
                 Integer.parseInt(this.preferences.getString("insider.android_geofence", "60")));
@@ -52,6 +54,7 @@ public class InsiderPlugin extends CordovaPlugin {
         }
         try {
             switch (action) {
+                case "initWithAppGroup":
                 case "init":
                     break;
                 case "setCustomAttributeWithString":
@@ -115,20 +118,20 @@ public class InsiderPlugin extends CordovaPlugin {
                     break;
                 case "getStringWithName":
                     ContentOptimizerVariableType stringVariableDataType = getDataType(args.getString(2));
-                    String optimisedString = Insider.Instance.getStringWithName(args.getString(0), args.getString(1), stringVariableDataType);
-                    if (optimisedString != null && optimisedString.length() > 0) {
-                        callbackSuccess(callbackContext, optimisedString);
+                    String optimizedString = Insider.Instance.getStringWithName(args.getString(0), args.getString(1), stringVariableDataType);
+                    if (optimizedString != null && optimizedString.length() > 0) {
+                        callbackSuccess(callbackContext, optimizedString);
                     }
                     break;
                 case "getIntWithName":
                     ContentOptimizerVariableType intVariableDataType = getDataType(args.getString(2));
-                    int optimisedInteger = Insider.Instance.getIntWithName(args.getString(0), args.getInt(1), intVariableDataType);
-                    callbackSuccess(callbackContext, optimisedInteger);
+                    int optimizedInteger = Insider.Instance.getIntWithName(args.getString(0), args.getInt(1), intVariableDataType);
+                    callbackSuccess(callbackContext, optimizedInteger);
                     break;
                 case "getBoolWithName":
                     ContentOptimizerVariableType boolVariableDataType = getDataType(args.getString(2));
-                    boolean optimisedBoolean = Insider.Instance.getBoolWithName(args.getString(0), args.getBoolean(1), boolVariableDataType);
-                    callbackSuccess(callbackContext, optimisedBoolean);
+                    boolean optimizedBoolean = Insider.Instance.getBoolWithName(args.getString(0), args.getBoolean(1), boolVariableDataType);
+                    callbackSuccess(callbackContext, optimizedBoolean);
                     break;
                 case "refreshDeviceToken":
                     Insider.Instance.refreshDeviceToken();
@@ -194,26 +197,7 @@ public class InsiderPlugin extends CordovaPlugin {
         }
     }
 
-    private static void callbackSuccess(CallbackContext callbackContext, JSONArray jsonArray) {
-        if (jsonArray == null) jsonArray = new JSONArray();
-        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, jsonArray);
-        pluginResult.setKeepCallback(true);
-        callbackContext.sendPluginResult(pluginResult);
-    }
-
-    private static void callbackSuccess(CallbackContext callbackContext, String callbackValue) {
-        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, callbackValue);
-        pluginResult.setKeepCallback(true);
-        callbackContext.sendPluginResult(pluginResult);
-    }
-
-    private static void callbackSuccess(CallbackContext callbackContext, int callbackValue) {
-        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, callbackValue);
-        pluginResult.setKeepCallback(true);
-        callbackContext.sendPluginResult(pluginResult);
-    }
-
-    private static void callbackSuccess(CallbackContext callbackContext, boolean callbackValue) {
+    private static void callbackSuccess(CallbackContext callbackContext, Object callbackValue) {
         PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, callbackValue);
         pluginResult.setKeepCallback(true);
         callbackContext.sendPluginResult(pluginResult);

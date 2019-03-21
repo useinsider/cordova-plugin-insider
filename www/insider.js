@@ -6,6 +6,10 @@ insider.init = function (partnerName) {
     exec(function(){}, function(){}, 'insider', 'init', [partnerName]);
 };
 
+insider.initWithAppGroup = function (partnerName, appGroup) {
+    exec(function(){}, function(){}, 'insider', 'init', [partnerName, appGroup]);
+};
+
 insider.registerPushWithQuietPermission = function (isEnabled) {
     exec(function(){}, function(){}, 'insider', 'registerPushWithQuietPermission', [isEnabled]);
 }
