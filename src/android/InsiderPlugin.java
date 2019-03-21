@@ -2,9 +2,11 @@ package insider.cordova.insider;
 
 import com.useinsider.insider.Insider;
 import com.useinsider.insider.RequestUtils;
+import com.useinsider.insider.config.ContentOptimizerVariableType;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import android.content.Context;
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
@@ -14,11 +16,15 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import android.util.Log;
 
 import android.app.Activity;
+
 import org.apache.cordova.CordovaPreferences;
+
 import android.os.Handler;
 import android.util.Log;
 
@@ -28,115 +34,164 @@ public class InsiderPlugin extends CordovaPlugin {
     @Override
     protected void pluginInitialize() {
         activity = this.cordova.getActivity();
-        String s = this.preferences.getString("insider.android_google_app_id","");
+        String s = this.preferences.getString("insider.android_google_app_id", "");
         Insider.Instance.init(activity.getApplication(),
-                    this.preferences.getString("insider.android_partner_name",""),
-                    s.substring(7),
-                    activity.getClass(),
-                    Boolean.valueOf(this.preferences.getString("insider.android_push_will_collapse","false")),
-                    Integer.parseInt(this.preferences.getString("insider.android_geofence","60")));
+                this.preferences.getString("insider.android_partner_name", ""),
+                s.substring(7),
+                activity.getClass(),
+                Boolean.valueOf(this.preferences.getString("insider.android_push_will_collapse", "false")),
+                Integer.parseInt(this.preferences.getString("insider.android_geofence", "60")));
         Insider.Instance.refreshDeviceToken();
-        Insider.Instance.setDeepLinks();
+        Insider.Instance.handleHybridIntent();
     }
-    
+
     @Override
     public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) {
+        if (args == null || args.length() == 0) {
+            return false;
+        }
         try {
-            if (args == null || args.length() == 0) {
-                return false;
-            }
-            if(action.equals("init")){                
-                return true;
-            } 
-            else if (action.equals("tagEvent")) {
-                Insider.Instance.tagEvent(activity, args.getString(0));
-                return true;
-            } else if (action.equals("refreshDeviceToken")) {
-                Insider.Instance.refreshDeviceToken();
-                return true;
-            } else if(action.equals("setUserAttributes")) {
-                JSONObject attrJson = new JSONObject(args.getString(0));
-                HashMap<String, Object> attrMap = new HashMap<String,Object>();
-                Iterator<?> keys = attrJson.keys();
-                while (keys.hasNext()) {
+            switch (action) {
+                case "init":
+                    break;
+                case "setCustomAttributeWithString":
+                    Insider.Instance.setCustomAttributeWithString(args.getString(0), args.getString(1));
+                    break;
+                case "setCustomAttributeWithDouble":
+                    Insider.Instance.setCustomAttributeWithDouble(args.getString(0), args.getDouble(1));
+                    break;
+                case "setCustomAttributeWithBoolean":
+                    Insider.Instance.setCustomAttributeWithBoolean(args.getString(0), args.getBoolean(1));
+                    break;
+                case "setCustomAttributeWithDate":
+                    DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                    Insider.Instance.setCustomAttributeWithDate(args.getString(0), dateFormatter.parse(args.getString(1)));
+                    break;
+                case "setCustomAttributeWithArray":
+                    JSONArray attributeJSONArray = args.getJSONArray(1);
+                    String[] attributes = new String[attributeJSONArray.length()];
+                    for (int i = 0; i < attributeJSONArray.length(); i++) {
+                        attributes[i] = attributeJSONArray.getString(i);
+                    }
+                    Insider.Instance.setCustomAttributeWithArray(args.getString(0), attributes);
+                    break;
+                case "setCustomAttributes":
+                    JSONObject attrJson = new JSONObject(args.getString(0));
+                    HashMap<String, Object> attrMap = new HashMap<String,Object>();
+                    Iterator<?> keys = attrJson.keys();
+                    while (keys.hasNext()) {
                     String key = (String) keys.next();
                     attrMap.put(key, attrJson.get(key));
-                }
-                Insider.Instance.setUserAttributes(attrMap);
-                return true;
-            } else if(action.equals("tagProduct")) {
-                Insider.Instance.tagProduct(args.getString(0));
-                return true;
-            } else if(action.equals("trackSales")) {
-                Insider.Instance.trackSales(
-                        activity,
-                        args.getString(0),
-                        args.getInt(1)
-                );
-                return true;
-            } else if(action.equals("trackSalesCurrency")) {
-                Insider.Instance.trackSales(
-                        activity,
-                        args.getString(0),
-                        args.getInt(1),
-                        args.getString(2)
-                );
-                return true;
-            } else if(action.equals("trackPurchasedItems")) {
-                Insider.Instance.trackPurchasedItems(
-                        activity,
+                    }
+                    Insider.Instance.setCustomAttributes(attrMap);
+                    break;
+                case "unsetCustomAttribute":
+                    Insider.Instance.unsetCustomAttribute(args.getString(0));
+                    break;
+                case "setUserIdentifier":
+                    Insider.Instance.setUserIdentifier(args.getString(0));
+                    break;
+                case "unsetUserIdentifier":
+                    Insider.Instance.unsetUserIdentifier();
+                    break;
+                case "setPushEnabled":
+                    Insider.Instance.setPushEnabled(args.getBoolean(0));
+                    break;
+                case "setLocationEnabled":
+                    Insider.Instance.setLocationEnabled(args.getBoolean(0));
+                    break;
+                case "tagEvent":
+                    Insider.Instance.tagEvent(args.getString(0));
+                    break;
+                case "tagEventWithParameters":
+                    JSONObject paramJson = new JSONObject(args.getString(0));
+                    HashMap<String, Object> paramMap = new HashMap<String,Object>();
+                    Iterator<?> paramsKeys = paramJson.keys();
+                    while (paramsKeys.hasNext()) {
+                        String key = (String) paramsKeys.next();
+                        paramMap.put(key, paramJson.get(key));
+                    }
+                    Insider.Instance.tagEventWithParameters(args.getString(0), paramMap);
+                    break;
+                case "getStringWithName":
+                    ContentOptimizerVariableType stringVariableDataType = getDataType(args.getString(2));
+                    String optimisedString = Insider.Instance.getStringWithName(args.getString(0), args.getString(1), stringVariableDataType);
+                    if (optimisedString != null && optimisedString.length() > 0) {
+                        callbackSuccess(callbackContext, optimisedString);
+                    }
+                    break;
+                case "getIntWithName":
+                    ContentOptimizerVariableType intVariableDataType = getDataType(args.getString(2));
+                    int optimisedInteger = Insider.Instance.getIntWithName(args.getString(0), args.getInt(1), intVariableDataType);
+                    callbackSuccess(callbackContext, optimisedInteger);
+                    break;
+                case "getBoolWithName":
+                    ContentOptimizerVariableType boolVariableDataType = getDataType(args.getString(2));
+                    boolean optimisedBoolean = Insider.Instance.getBoolWithName(args.getString(0), args.getBoolean(1), boolVariableDataType);
+                    callbackSuccess(callbackContext, optimisedBoolean);
+                    break;
+                case "refreshDeviceToken":
+                    Insider.Instance.refreshDeviceToken();
+                    break;
+                case "tagProduct":
+                    Insider.Instance.tagProduct(args.getString(0));
+                    break;
+                case "trackPurchasedItems":
+                    Insider.Instance.trackPurchasedItems(
+                            args.getString(0),
+                            args.getString(1),
+                            args.getString(2),
+                            args.getString(3),
+                            args.getString(4),
+                            args.getDouble(5),
+                            args.getString(6)
+                    );
+                    break;
+                case "itemAddedToCart":
+                    Insider.Instance.itemAddedToCart(
                         args.getString(0),
                         args.getString(1),
-                        args.getString(2),
+                        args.getDouble(2),
                         args.getString(3),
-                        args.getString(4),
-                        args.getDouble(5),
-                        args.getString(6)
-                );
-                return true;
-            } else if(action.equals("itemAddedToCart")) {
-                Insider.Instance.itemAddedToCart(
-                        activity,
-                        args.getString(0),
-                        (float) args.getDouble(1),
-                        args.getString(2),
-                        args.getString(3)
-                );
-                return true;
-            } else if(action.equals("itemRemovedFromCart")) {
-                Insider.Instance.itemRemovedFromCart(
-                        this.cordova.getActivity(),
-                        args.getString(0)
-                );
-                return true;
-            } else if(action.equals("cartCleared")) {
-                Insider.Instance.cartCleared(activity);
-                return true;
-            } else if(action.equals("getRecommendationData")) {
-                Insider.Instance.getRecommendationData(args.getString(0), new RequestUtils.Recommendation() {
-                    @Override
-                    public void loadRecommendationData(JSONArray jsonArray) {
-                        callbackSuccess(callbackContext, jsonArray);
+                        args.getString(4)
+                    );
+                    break;
+                case "itemRemovedFromCart":
+                    Insider.Instance.itemRemovedFromCart(
+                            args.getString(0)
+                    );
+                    break;
+                case "cartCleared":
+                    Insider.Instance.cartCleared();
+                    break;
+                case "getDeepLinkData":
+                    Object deepLinkData = Insider.Instance.getDeepLinkData(args.getString(0));
+                    if (deepLinkData != null && deepLinkData.toString().length() > 0) {
+                        callbackSuccess(callbackContext, deepLinkData.toString());
                     }
-                });
-                return true;
-            } else if(action.equals("getDeepLinkData")) {
-                Object deepLinkData = Insider.Instance.getDeepLinkData(args.getString(0));
-                if (deepLinkData != null && deepLinkData.toString().length() > 0) {
-                callbackSuccess(callbackContext, deepLinkData.toString());
-                }
-                return true;
-            } else if(action.equals("cleanView")) {
-                Insider.Instance.cleanView(activity);
-                return true;
-            } else if(action.equals("setCustomEndpoint")) {
-                Insider.Instance.setCustomEndpoint(args.getString(0));
-                return true;
+                    break;
+                case "cleanView":
+                    Insider.Instance.cleanView(activity);
+                    break;
+                default:
+                    return false;
             }
+            return true;
         } catch (Exception e) {
-            Insider.Instance.putLog(e);
+            Insider.Instance.putException(e);
         }
         return false;
+    }
+
+    private static ContentOptimizerVariableType getDataType(String dataType){
+        switch (dataType) {
+          case "Content":
+             return ContentOptimizerVariableType.InsiderVariableTypeContent;
+          case "Element":
+            return ContentOptimizerVariableType.InsiderVariableTypeElement;
+          default:
+            return null;
+        }
     }
 
     private static void callbackSuccess(CallbackContext callbackContext, JSONArray jsonArray) {
@@ -146,8 +201,20 @@ public class InsiderPlugin extends CordovaPlugin {
         callbackContext.sendPluginResult(pluginResult);
     }
 
-    private static void callbackSuccess(CallbackContext callbackContext, String deepLink) {
-        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, deepLink);
+    private static void callbackSuccess(CallbackContext callbackContext, String callbackValue) {
+        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, callbackValue);
+        pluginResult.setKeepCallback(true);
+        callbackContext.sendPluginResult(pluginResult);
+    }
+
+    private static void callbackSuccess(CallbackContext callbackContext, int callbackValue) {
+        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, callbackValue);
+        pluginResult.setKeepCallback(true);
+        callbackContext.sendPluginResult(pluginResult);
+    }
+
+    private static void callbackSuccess(CallbackContext callbackContext, boolean callbackValue) {
+        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, callbackValue);
         pluginResult.setKeepCallback(true);
         callbackContext.sendPluginResult(pluginResult);
     }
