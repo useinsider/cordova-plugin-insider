@@ -89,8 +89,7 @@ int INVALID_DATA_TYPE = -1;
 - (void)refreshDeviceToken:(CDVInvokedUrlCommand*)command{
     @try {
         NSString* deviceToken = [[command arguments] objectAtIndex:0];
-        NSData* data = [deviceToken dataUsingEncoding:NSUTF8StringEncoding];
-        [Insider registerPushNotification:nil deviceToken:data];
+        [Insider registerPushNotification:nil deviceToken:deviceToken];
     } @catch (NSException *exception) {
         [Insider sendError:exception desc:@"insider.m - refreshDeviceToken"];
     }
