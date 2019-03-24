@@ -79,7 +79,7 @@ public class InsiderPlugin extends CordovaPlugin {
                     Insider.Instance.setCustomAttributeWithArray(args.getString(0), attributes);
                     break;
                 case "setCustomAttributes":
-                    JSONObject attrJson = new JSONObject(args.getString(0));
+                    JSONObject attrJson = new JSONObject(args.getString(1));
                     HashMap<String, Object> attrMap = new HashMap<String,Object>();
                     Iterator<?> keys = attrJson.keys();
                     while (keys.hasNext()) {
@@ -107,7 +107,7 @@ public class InsiderPlugin extends CordovaPlugin {
                     Insider.Instance.tagEvent(args.getString(0));
                     break;
                 case "tagEventWithParameters":
-                    JSONObject paramJson = new JSONObject(args.getString(0));
+                    JSONObject paramJson = new JSONObject(args.getString(1));
                     HashMap<String, Object> paramMap = new HashMap<String,Object>();
                     Iterator<?> paramsKeys = paramJson.keys();
                     while (paramsKeys.hasNext()) {
@@ -197,7 +197,27 @@ public class InsiderPlugin extends CordovaPlugin {
         }
     }
 
-    private static void callbackSuccess(CallbackContext callbackContext, Object callbackValue) {
+    private static void callbackSuccess(CallbackContext callbackContext, String callbackValue) {
+        try {
+            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, callbackValue);
+            pluginResult.setKeepCallback(true);
+            callbackContext.sendPluginResult(pluginResult);
+        } catch (Exception e) {
+            Insider.Instance.putException(e);
+        }
+    }
+
+    private static void callbackSuccess(CallbackContext callbackContext, int callbackValue) {
+        try {
+            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, callbackValue);
+            pluginResult.setKeepCallback(true);
+            callbackContext.sendPluginResult(pluginResult);
+        } catch (Exception e) {
+            Insider.Instance.putException(e);
+        }
+    }
+
+    private static void callbackSuccess(CallbackContext callbackContext, boolean callbackValue) {
         try {
             PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, callbackValue);
             pluginResult.setKeepCallback(true);
