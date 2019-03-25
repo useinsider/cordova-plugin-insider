@@ -112,7 +112,6 @@ public class InsiderPlugin extends CordovaPlugin {
                     Iterator<?> paramsKeys = paramJson.keys();
                     while (paramsKeys.hasNext()) {
                         String key = (String) paramsKeys.next();
-                        Object value = paramJson.get(key);
                         paramMap.put(key, paramJson.get(key));
                     }
                     Insider.Instance.tagEventWithParameters(args.getString(0), paramMap);
