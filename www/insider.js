@@ -54,8 +54,8 @@ insider.unsetUserIdentifier = function () {
     exec(function(){}, function(){}, 'insider', 'unsetUserIdentifier', []);
 };
 
-insider.refreshDeviceToken = function (token) {
-    exec(function(){}, function(){}, 'insider', 'refreshDeviceToken', [token]);
+insider.refreshDeviceToken = function () {
+    exec(function(){}, function(){}, 'insider', 'refreshDeviceToken', []);
 };
 
 insider.setPushEnabled = function (value) {

@@ -79,7 +79,7 @@ public class InsiderPlugin extends CordovaPlugin {
                     Insider.Instance.setCustomAttributeWithArray(args.getString(0), attributes);
                     break;
                 case "setCustomAttributes":
-                    JSONObject attrJson = new JSONObject(args.getString(1));
+                    JSONObject attrJson = new JSONObject(args.getString(0));
                     HashMap<String, Object> attrMap = new HashMap<String,Object>();
                     Iterator<?> keys = attrJson.keys();
                     while (keys.hasNext()) {
@@ -112,6 +112,7 @@ public class InsiderPlugin extends CordovaPlugin {
                     Iterator<?> paramsKeys = paramJson.keys();
                     while (paramsKeys.hasNext()) {
                         String key = (String) paramsKeys.next();
+                        Object value = paramJson.get(key);
                         paramMap.put(key, paramJson.get(key));
                     }
                     Insider.Instance.tagEventWithParameters(args.getString(0), paramMap);

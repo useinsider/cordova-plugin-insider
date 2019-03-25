@@ -9,7 +9,6 @@
 
 - (void)init:(CDVInvokedUrlCommand*)command;
 - (void)registerPushWithQuietPermission:(CDVInvokedUrlCommand*)command;
-- (void)refreshDeviceToken:(CDVInvokedUrlCommand*)command;
 - (void)tagEvent:(CDVInvokedUrlCommand*)command;
 - (void)tagEventWithParameters:(CDVInvokedUrlCommand*)command;
 - (void)setCustomAttributes:(CDVInvokedUrlCommand*)command;
@@ -83,15 +82,6 @@ int INVALID_DATA_TYPE = -1;
         [Insider resumeSession];
     } @catch (NSException *exception) {
         [Insider sendError:exception desc:@"insider.m - init"];
-    }
-}
-
-- (void)refreshDeviceToken:(CDVInvokedUrlCommand*)command{
-    @try {
-        NSString* deviceToken = [[command arguments] objectAtIndex:0];
-        [Insider registerPushNotification:nil deviceToken:deviceToken];
-    } @catch (NSException *exception) {
-        [Insider sendError:exception desc:@"insider.m - refreshDeviceToken"];
     }
 }
 
