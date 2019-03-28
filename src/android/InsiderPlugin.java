@@ -43,6 +43,7 @@ public class InsiderPlugin extends CordovaPlugin {
                 activity.getClass(),
                 Boolean.valueOf(this.preferences.getString("insider.android_push_will_collapse", "false")),
                 Integer.parseInt(this.preferences.getString("insider.android_geofence", "60")));
+        Insider.Instance.resumeSession(activity);
         Insider.Instance.refreshDeviceToken();
         Insider.Instance.handleHybridIntent();
     }
