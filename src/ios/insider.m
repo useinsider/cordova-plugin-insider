@@ -8,17 +8,36 @@
 }
 
 - (void)init:(CDVInvokedUrlCommand*)command;
+- (void)registerPushWithQuietPermission:(CDVInvokedUrlCommand*)command;
 - (void)tagEvent:(CDVInvokedUrlCommand*)command;
-- (void)setUserAttributes:(CDVInvokedUrlCommand*)command;
+- (void)tagEventWithParameters:(CDVInvokedUrlCommand*)command;
+- (void)setCustomAttributes:(CDVInvokedUrlCommand*)command;
+- (void)setCustomAttributeWithString:(CDVInvokedUrlCommand*)command;
+- (void)setCustomAttributeWithDouble:(CDVInvokedUrlCommand*)command;
+- (void)setCustomAttributeWithBoolean:(CDVInvokedUrlCommand*)command;
+- (void)setCustomAttributeWithDate:(CDVInvokedUrlCommand*)command;
+- (void)setCustomAttributeWithArray:(CDVInvokedUrlCommand*)command;
+- (void)setPushEnabled:(CDVInvokedUrlCommand*)command;
+- (void)setLocationEnabled:(CDVInvokedUrlCommand*)command;
+- (void)unsetCustomAttribute:(CDVInvokedUrlCommand*)command;
+- (void)setUserIdentifier:(CDVInvokedUrlCommand*)command;
+- (void)unsetUserIdentifier:(CDVInvokedUrlCommand*)command;
 - (void)tagProduct:(CDVInvokedUrlCommand*)command;
 - (void)trackPurchasedItems:(CDVInvokedUrlCommand*)command;
 - (void)itemAddedToCart:(CDVInvokedUrlCommand*)command;
 - (void)itemRemovedFromCart:(CDVInvokedUrlCommand*)command;
 - (void)cartCleared:(CDVInvokedUrlCommand*)command;
 - (void)getDeepLinkData:(CDVInvokedUrlCommand*)command;
+- (void)startTrackingGeofence:(CDVInvokedUrlCommand*)command;
+- (void)getStringWithName:(CDVInvokedUrlCommand*)command;
+- (void)getIntWithName:(CDVInvokedUrlCommand*)command;
+- (void)getBoolWithName:(CDVInvokedUrlCommand*)command;
+- (void)cleanView:(CDVInvokedUrlCommand*)command;
 @end
 
 @implementation insider
+
+int INVALID_DATA_TYPE = -1;
 
 - (void)pluginInitialize {}
 
@@ -33,66 +52,303 @@
   return mainDict;
 }
 
-- (void)getDeepLinkData:(CDVInvokedUrlCommand*)command{
-    NSDictionary *deepLinks = [self getPushInfo];
-    if (deepLinks){
-        NSString *deepLink = [deepLinks objectForKey: [[command arguments] objectAtIndex:0]];
-        if (deepLink){
-            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:deepLink];
-            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        }
+-(InsiderVariableDataType)getDataType:(NSString *)dataType{
+    if ([dataType isEqualToString:@"Content"]){
+        return InsiderVariableDataTypeContent;
+    } else if ([dataType isEqualToString:@"Element"]){
+        return InsiderVariableDataTypeElement;
+    } else {
+        return INVALID_DATA_TYPE;
     }
 }
 
 - (void)init:(CDVInvokedUrlCommand*)command{
-    NSString* partnerName = [[command arguments] objectAtIndex:0];
-    [Insider startAutoIntegration:true];
-    [Insider initSDK:partnerName launchOptions:nil];
-    [Insider resumeSession];
-    [Insider registerPush];
+    @try {
+        NSString* partnerName = [[command arguments] objectAtIndex:0];
+        [Insider startAutoIntegration:true];
+        [Insider initSDK:partnerName launchOptions:nil];
+        [Insider resumeSession];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - init"];
+    }
+}
+
+- (void)initWithAppGroup:(CDVInvokedUrlCommand*)command{
+    @try {
+        NSString* partnerName = [[command arguments] objectAtIndex:0];
+        NSString* appGroup = [[command arguments] objectAtIndex:1];
+        [Insider startAutoIntegration:true];
+        [Insider initSDK:partnerName launchOptions:nil withAppGroup:appGroup];
+        [Insider resumeSession];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - init"];
+    }
+}
+
+- (void)registerPushWithQuietPermission:(CDVInvokedUrlCommand*)command{
+    @try {
+        NSString* quietPermission = [[command arguments] objectAtIndex:0];
+        [Insider registerWithQuietPermission:[quietPermission boolValue]];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - registerPushWithQuietPermission"];
+    }
+}
+
+- (void)getStringWithName:(CDVInvokedUrlCommand*)command{
+    @try {
+        NSString* variableName = [[command arguments] objectAtIndex:0];
+        NSString* defaultString = [[command arguments] objectAtIndex:1];
+        NSString* dataType = [[command arguments] objectAtIndex:2];
+        InsiderVariableDataType insiderDataType = [self getDataType:dataType];
+        if (insiderDataType == INVALID_DATA_TYPE) return;
+        NSString* optimizedString = [Insider getStringWithName:variableName defaultString:defaultString dataType:insiderDataType];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:optimizedString];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - getStringWithName"];
+    }
+}
+
+- (void)getIntWithName:(CDVInvokedUrlCommand*)command{
+    @try {
+        NSString* variableName = [[command arguments] objectAtIndex:0];
+        int defaultInt = [[[command arguments] objectAtIndex:1] intValue];
+        NSString* dataType = [[command arguments] objectAtIndex:2];
+        InsiderVariableDataType insiderDataType = [self getDataType:dataType];
+        if (insiderDataType == INVALID_DATA_TYPE) return;
+        int optimizedInt = [Insider getIntWithName:variableName defaultInt:defaultInt dataType:insiderDataType];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:optimizedInt];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - getIntWithName"];
+    }
+}
+
+- (void)getBoolWithName:(CDVInvokedUrlCommand*)command{
+    @try {
+        NSString* variableName = [[command arguments] objectAtIndex:0];
+        BOOL defaultBool = [[[command arguments] objectAtIndex:1] boolValue];
+        NSString* dataType = [[command arguments] objectAtIndex:2];
+        InsiderVariableDataType insiderDataType = [self getDataType:dataType];
+        if (insiderDataType == INVALID_DATA_TYPE) return;
+        BOOL optimizedBool = [Insider getBoolWithName:variableName defaultBool:defaultBool dataType:insiderDataType];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:optimizedBool];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - getBoolWithName"];
+    }
+}
+
+- (void)getDeepLinkData:(CDVInvokedUrlCommand*)command{
+    @try {
+        NSDictionary *deepLinks = [self getPushInfo];
+        if (!deepLinks){
+            return;
+        }
+        NSString *deepLink = [deepLinks objectForKey: [[command arguments] objectAtIndex:0]];
+        if (!deepLink){
+            return;
+        }
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:deepLink];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - getDeepLinkData"];
+    }
+}
+
+- (void)startTrackingGeofence:(CDVInvokedUrlCommand*)command{
+    @try {
+        [Insider startTrackingGeofence];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - startTrackingGeofence"];
+    }
 }
 
 - (void)tagEvent:(CDVInvokedUrlCommand*)command{
-    NSString* eventName = [[command arguments] objectAtIndex:0];
-    [Insider tagEvent:eventName];
+    @try {
+        NSString* eventName = [[command arguments] objectAtIndex:0];
+        [Insider tagEvent:eventName];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - tagEvent"];
+    }
 }
 
-- (void)setUserAttributes:(CDVInvokedUrlCommand*)command{
-    NSDictionary *properties = [[command arguments] objectAtIndex:0];
-    [Insider setUserAttributes:properties];
+- (void)tagEventWithParameters:(CDVInvokedUrlCommand*)command{
+    @try {
+        NSString* eventName = [[command arguments] objectAtIndex:0];
+        NSDictionary* parameters = [[command arguments] objectAtIndex:1];
+        [Insider tagEventWithParameters:eventName parameters:parameters];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - tagEventWithParameters"];
+    }
+}
+
+- (void)setCustomAttributes:(CDVInvokedUrlCommand*)command{
+    @try {
+        NSDictionary *attributes = [[command arguments] objectAtIndex:0];
+        [Insider setCustomAttributes:attributes];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - setCustomAttributes"];
+    }
+}
+
+- (void)setCustomAttributeWithString:(CDVInvokedUrlCommand*)command{
+    @try {
+        NSString* key = [[command arguments] objectAtIndex:0];
+        NSString* value = [[command arguments] objectAtIndex:1];
+        [Insider setCustomAttributeWithString:key value:value];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - setCustomAttributeWithString"];
+    }
+}
+
+- (void)setCustomAttributeWithDouble:(CDVInvokedUrlCommand*)command{
+    @try {
+        NSString* key = [[command arguments] objectAtIndex:0];
+        double value = [[[command arguments] objectAtIndex:1] doubleValue];
+        [Insider setCustomAttributeWithDouble:key value:value];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - setCustomAttributeWithDouble"];
+    }
+}
+
+- (void)setCustomAttributeWithBoolean:(CDVInvokedUrlCommand*)command{
+    @try {
+        NSString* key = [[command arguments] objectAtIndex:0];
+        BOOL value = [[[command arguments] objectAtIndex:1] boolValue];
+        [Insider setCustomAttributeWithBOOL:key value:value];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - setCustomAttributeWithBoolean"];
+    }
+}
+
+- (void)setCustomAttributeWithDate:(CDVInvokedUrlCommand*)command{
+    @try {
+        NSString* key = [[command arguments] objectAtIndex:0];
+        NSString* value = [[command arguments] objectAtIndex:1];
+        NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+        [dateFormat setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+        NSDate *date = [dateFormat dateFromString:value];
+        [Insider setCustomAttributeWithDate:key value:date];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - setCustomAttributeWithDate"];
+    }
+}
+
+- (void)setCustomAttributeWithArray:(CDVInvokedUrlCommand*)command{
+    @try {
+        NSString* key = [[command arguments] objectAtIndex:0];
+        NSArray* value = [[command arguments] objectAtIndex:1];
+        [Insider setCustomAttributeWithArray:key value:value];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - setCustomAttributeWithArray"];
+    }
+}
+
+- (void)setPushEnabled:(CDVInvokedUrlCommand*)command{
+    @try {
+        BOOL value = [[[command arguments] objectAtIndex:0] boolValue];
+        [Insider setPushEnabled:value];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - setPushEnabled"];
+    }
+}
+
+- (void)setLocationEnabled:(CDVInvokedUrlCommand*)command{
+    @try {
+        BOOL value = [[[command arguments] objectAtIndex:0] boolValue];
+        [Insider setLocationEnabled:value];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - setLocationEnabled"];
+    }
+}
+
+- (void)unsetCustomAttribute:(CDVInvokedUrlCommand*)command{
+    @try {
+        NSString* key = [[command arguments] objectAtIndex:0];
+        [Insider unsetCustomAttribute:key];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - unsetCustomAttribute"];
+    }
+}
+
+- (void)setUserIdentifier:(CDVInvokedUrlCommand*)command{
+    @try {
+        NSString* key = [[command arguments] objectAtIndex:0];
+        [Insider setUserIdentifier:key];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - setUserIdentifier"];
+    }
+}
+
+- (void)unsetUserIdentifier:(CDVInvokedUrlCommand*)command{
+    @try {
+     [Insider unsetUserIdentifier];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - unsetUserIdentifier"];
+    }
 }
 
 - (void)tagProduct:(CDVInvokedUrlCommand*)command{
-    NSString* productID = [[command arguments] objectAtIndex:0];
-    [Insider tagProduct:productID];   
+    @try {
+        NSString* productID = [[command arguments] objectAtIndex:0];
+        [Insider tagProduct:productID];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - tagProduct"];
+    }
 }
 
 - (void)trackPurchasedItems:(CDVInvokedUrlCommand*)command{
-    NSString* uniqueSaleID = [[command arguments] objectAtIndex:0];
-    NSString* productID = [[command arguments] objectAtIndex:1];
-    NSString* name = [[command arguments] objectAtIndex:2];
-    NSString* category = [[command arguments] objectAtIndex:3];
-    NSString* subCategory = [[command arguments] objectAtIndex:4];
-    NSString* price = [[command arguments] objectAtIndex:5];
-    NSString* currency = [[command arguments] objectAtIndex:6];
-    [Insider trackPurchasedItems:uniqueSaleID name:name category:category subCategory:subCategory price:[price doubleValue] currency:currency productID:productID];
+    @try {
+        NSString* uniqueSaleID = [[command arguments] objectAtIndex:0];
+        NSString* productID = [[command arguments] objectAtIndex:1];
+        NSString* name = [[command arguments] objectAtIndex:2];
+        NSString* category = [[command arguments] objectAtIndex:3];
+        NSString* subCategory = [[command arguments] objectAtIndex:4];
+        NSString* price = [[command arguments] objectAtIndex:5];
+        NSString* currency = [[command arguments] objectAtIndex:6];
+        [Insider trackPurchasedItems:uniqueSaleID name:name category:category subCategory:subCategory price:[price doubleValue] currency:currency productID:productID];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - trackPurchasedItems"];
+    }
 }
 
 - (void)itemAddedToCart:(CDVInvokedUrlCommand*)command{
-    NSString* productName = [[command arguments] objectAtIndex:0];
-    NSString* productPrice = [[command arguments] objectAtIndex:1];
-    NSString* productCurrency = [[command arguments] objectAtIndex:2];
-    NSString* productImageURL = [[command arguments] objectAtIndex:3];
-    [Insider itemAddedToCart:productName productPrice:[productPrice doubleValue] productCurrency:productCurrency productImageURL:productImageURL];
+    @try {
+        NSString* productID = [[command arguments] objectAtIndex:0];
+        NSString* productName = [[command arguments] objectAtIndex:1];
+        NSString* productPrice = [[command arguments] objectAtIndex:2];
+        NSString* productCurrency = [[command arguments] objectAtIndex:3];
+        NSString* productImageURL = [[command arguments] objectAtIndex:4];
+        [Insider itemAddedToCart:productID productName:productName productPrice:[productPrice doubleValue] productCurrency:productCurrency productImageURL:productImageURL];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - itemAddedToCart"];
+    }
 }
 
 - (void)itemRemovedFromCart:(CDVInvokedUrlCommand*)command{
-    NSString* productName = [[command arguments] objectAtIndex:0];
-    [Insider itemRemovedFromCart:productName];
+    @try {
+        NSString* productID = [[command arguments] objectAtIndex:0];
+        [Insider itemRemovedFromCart:productID];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - itemRemovedFromCart"];
+    }
 }
 
 - (void)cartCleared:(CDVInvokedUrlCommand*)command{
-    [Insider cartCleared];
+    @try {
+        [Insider cartCleared];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - cartCleared"];
+    }
+}
+
+- (void)cleanView:(CDVInvokedUrlCommand*)command{
+    @try {
+        [Insider removeInapp];
+    } @catch (NSException *exception) {
+        [Insider sendError:exception desc:@"insider.m - cleanView"];
+    }
 }
 
 @end
